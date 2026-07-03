@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { useSkins, type SkinIndex, type WeaponGroup } from "./lib/useSkins.ts";
 import { computeBudget, headroomFor, type Picks } from "./lib/budget.ts";
+import { decodeLoadout } from "./lib/share.ts";
 import { usd } from "./lib/format.ts";
 import { WeaponSlot } from "./components/WeaponSlot.tsx";
+import { SummaryPanel } from "./components/SummaryPanel.tsx";
 import type { Skin, WearPrice } from "./types/skin.ts";
 
 const QUICK_BUDGETS = [25, 50, 100, 250, 500];
@@ -32,10 +34,21 @@ export default function App() {
 }
 
 function ForceBuy({ index }: { index: SkinIndex }) {
-  const [budgetRaw, setBudgetRaw] = useState("");
-  const [armed, setArmed] = useState<Set<string>>(new Set());
-  const [picks, setPicks] = useState<Picks>({});
+  // Restore a shared loadout from the URL on first render, if present.
+  const initial = useMemo(
+    () => decodeLoadout(window.location.search, index.byId),
+    [index],
+  );
+
+  const [budgetRaw, setBudgetRaw] = useState(
+    initial?.budget ? String(initial.budget) : "",
+  );
+  const [armed, setArmed] = useState<Set<string>>(
+    () => new Set(Object.keys(initial?.picks ?? {})),
+  );
+  const [picks, setPicks] = useState<Picks>(initial?.picks ?? {});
   const [openWeapon, setOpenWeapon] = useState<string | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
 
   const budget = Math.max(0, Number(budgetRaw) || 0);
 
@@ -103,6 +116,11 @@ function ForceBuy({ index }: { index: SkinIndex }) {
     setArmed(new Set());
     setPicks({});
     setOpenWeapon(null);
+    setShowSummary(false);
+    // Drop any shared-loadout query so a reset starts truly clean.
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }
 
   const showArm = budget > 0;
@@ -331,11 +349,30 @@ function ForceBuy({ index }: { index: SkinIndex }) {
               </div>
             </div>
 
+            <button
+              type="button"
+              className="hud-summary"
+              data-ready={pickedCount > 0 && pickedCount === armedGroups.length}
+              onClick={() => setShowSummary(true)}
+              disabled={pickedCount === 0}
+            >
+              Loadout
+            </button>
             <button type="button" className="hud-reset" onClick={reset}>
               Reset
             </button>
           </div>
         </div>
+      ) : null}
+
+      {showSummary ? (
+        <SummaryPanel
+          budget={budget}
+          budgetState={budgetState}
+          armedGroups={armedGroups}
+          picks={picks}
+          onClose={() => setShowSummary(false)}
+        />
       ) : null}
     </>
   );

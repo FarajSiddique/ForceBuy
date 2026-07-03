@@ -24,6 +24,7 @@ export interface CategoryGroup {
 export interface SkinIndex {
   meta: SkinsFile["meta"];
   byWeapon: Map<string, WeaponGroup>;
+  byId: Map<string, Skin>;
   categories: CategoryGroup[];
 }
 
@@ -34,8 +35,10 @@ export type LoadState =
 
 function buildIndex(file: SkinsFile): SkinIndex {
   const byWeapon = new Map<string, WeaponGroup>();
+  const byId = new Map<string, Skin>();
 
   for (const skin of file.skins) {
+    byId.set(skin.id, skin);
     let group = byWeapon.get(skin.weapon);
     if (!group) {
       group = {
@@ -75,7 +78,7 @@ function buildIndex(file: SkinsFile): SkinIndex {
       weapons: weapons.sort((a, b) => a.weapon.localeCompare(b.weapon)),
     }));
 
-  return { meta: file.meta, byWeapon, categories };
+  return { meta: file.meta, byWeapon, byId, categories };
 }
 
 export function useSkins(): LoadState {
