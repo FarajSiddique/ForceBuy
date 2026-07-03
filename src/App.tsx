@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSkins, type SkinIndex, type WeaponGroup } from "./lib/useSkins.ts";
 import { computeBudget, headroomFor, type Picks } from "./lib/budget.ts";
 import { decodeLoadout } from "./lib/share.ts";
@@ -88,28 +88,40 @@ function ForceBuy({ index }: { index: SkinIndex }) {
     });
   }
 
-  function nextUnpicked(after: string): string | null {
-    const idx = armedGroups.findIndex((g) => g.weapon === after);
-    for (let i = 1; i <= armedGroups.length; i++) {
-      const g = armedGroups[(idx + i) % armedGroups.length];
-      if (g.weapon !== after && !picks[g.weapon]) return g.weapon;
-    }
-    return null;
-  }
+  const nextUnpicked = useCallback(
+    (after: string): string | null => {
+      const idx = armedGroups.findIndex((g) => g.weapon === after);
+      for (let i = 1; i <= armedGroups.length; i++) {
+        const g = armedGroups[(idx + i) % armedGroups.length];
+        if (g.weapon !== after && !picks[g.weapon]) return g.weapon;
+      }
+      return null;
+    },
+    [armedGroups, picks],
+  );
 
-  function handleEquip(weapon: string, skin: Skin, wear: WearPrice) {
-    setPicks((p) => ({ ...p, [weapon]: { skin, equipped: wear } }));
-    setOpenWeapon(nextUnpicked(weapon));
-  }
+  // Stable handler identities so memoized WeaponSlot/SkinCard children don't
+  // re-render on unrelated state changes (e.g. per-slot search keystrokes).
+  const handleEquip = useCallback(
+    (weapon: string, skin: Skin, wear: WearPrice) => {
+      setPicks((p) => ({ ...p, [weapon]: { skin, equipped: wear } }));
+      setOpenWeapon(nextUnpicked(weapon));
+    },
+    [nextUnpicked],
+  );
 
-  function handleClear(weapon: string) {
+  const handleClear = useCallback((weapon: string) => {
     setPicks((p) => {
       const np = { ...p };
       delete np[weapon];
       return np;
     });
     setOpenWeapon(weapon);
-  }
+  }, []);
+
+  const handleToggle = useCallback((weapon: string) => {
+    setOpenWeapon((prev) => (prev === weapon ? null : weapon));
+  }, []);
 
   function reset() {
     setBudgetRaw("");
@@ -280,11 +292,9 @@ function ForceBuy({ index }: { index: SkinIndex }) {
                   open={openWeapon === g.weapon}
                   pick={picks[g.weapon] ?? null}
                   headroom={headroomFor(g, budget, armedGroups, picks)}
-                  onToggle={() =>
-                    setOpenWeapon(openWeapon === g.weapon ? null : g.weapon)
-                  }
-                  onEquip={(skin, wear) => handleEquip(g.weapon, skin, wear)}
-                  onClear={() => handleClear(g.weapon)}
+                  onToggle={handleToggle}
+                  onEquip={handleEquip}
+                  onClear={handleClear}
                 />
               ))}
             </div>

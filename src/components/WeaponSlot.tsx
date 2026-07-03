@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import type { Skin, WearPrice } from "../types/skin.ts";
 import type { WeaponGroup } from "../lib/useSkins.ts";
 import { withinHeadroom, type Pick } from "../lib/budget.ts";
@@ -11,12 +11,12 @@ interface Props {
   open: boolean;
   pick: Pick | null;
   headroom: number;
-  onToggle: () => void;
-  onEquip: (skin: Skin, wear: WearPrice) => void;
-  onClear: () => void;
+  onToggle: (weapon: string) => void;
+  onEquip: (weapon: string, skin: Skin, wear: WearPrice) => void;
+  onClear: (weapon: string) => void;
 }
 
-export function WeaponSlot({
+export const WeaponSlot = memo(function WeaponSlot({
   group,
   index,
   open,
@@ -27,6 +27,16 @@ export function WeaponSlot({
   onClear,
 }: Props) {
   const [query, setQuery] = useState("");
+
+  // Bind the weapon identity to stable per-slot handlers so SkinCard's
+  // onEquip prop stays referentially stable across search keystrokes.
+  const weapon = group.weapon;
+  const handleToggle = useCallback(() => onToggle(weapon), [onToggle, weapon]);
+  const handleClear = useCallback(() => onClear(weapon), [onClear, weapon]);
+  const handleEquip = useCallback(
+    (skin: Skin, wear: WearPrice) => onEquip(weapon, skin, wear),
+    [onEquip, weapon],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -55,7 +65,7 @@ export function WeaponSlot({
       <button
         type="button"
         className="slot-head"
-        onClick={onToggle}
+        onClick={handleToggle}
         aria-expanded={open}
       >
         <span className="slot-index">{String(index + 1).padStart(2, "0")}</span>
@@ -93,12 +103,12 @@ export function WeaponSlot({
               tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
-                onClear();
+                handleClear();
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.stopPropagation();
-                  onClear();
+                  handleClear();
                 }
               }}
             >
@@ -141,7 +151,7 @@ export function WeaponSlot({
                   key={skin.id}
                   skin={skin}
                   headroom={headroom}
-                  onEquip={onEquip}
+                  onEquip={handleEquip}
                 />
               ))}
               {within.length > 0 && over.length > 0 ? (
@@ -154,7 +164,7 @@ export function WeaponSlot({
                   key={skin.id}
                   skin={skin}
                   headroom={headroom}
-                  onEquip={onEquip}
+                  onEquip={handleEquip}
                 />
               ))}
             </div>
@@ -163,4 +173,4 @@ export function WeaponSlot({
       ) : null}
     </section>
   );
-}
+});

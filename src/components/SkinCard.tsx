@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { Skin, WearPrice } from "../types/skin.ts";
 import { withinHeadroom } from "../lib/budget.ts";
 import { usd, wearAbbr } from "../lib/format.ts";
@@ -34,7 +34,7 @@ function headlineWear(skin: Skin): WearPrice {
   );
 }
 
-export function SkinCard({ skin, headroom, onEquip }: Props) {
+export const SkinCard = memo(function SkinCard({ skin, headroom, onEquip }: Props) {
   const [open, setOpen] = useState(false);
   const rarityColor = (skin.rarity && RARITY_COLOR[skin.rarity]) || "#59615a";
   const hasLadder = skin.wears.length > 1;
@@ -107,4 +107,4 @@ export function SkinCard({ skin, headroom, onEquip }: Props) {
       </div>
     </div>
   );
-}
+});

@@ -906,9 +906,11 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(11, 13, 14, 0.7), var(--bg) 60%);
+  /* Solid (near-opaque) bar — no backdrop-filter. A fixed blurred bar has to
+     re-sample and re-blur the whole scrolling page every frame, which was the
+     main scroll-jank source; an opaque gradient reads almost identically. */
+  background: linear-gradient(180deg, rgba(11, 13, 14, 0.97), var(--bg) 45%);
   border-top: 1px solid var(--line-strong);
-  backdrop-filter: blur(14px);
   animation: hud-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes hud-in {
@@ -1063,8 +1065,10 @@ button {
   place-items: start center;
   padding: clamp(1rem, 5vh, 4rem) 1rem;
   overflow-y: auto;
-  background: rgba(6, 8, 9, 0.72);
-  backdrop-filter: blur(6px);
+  /* Solid scrim instead of backdrop-filter: the blurred overlay forced the
+     entire (heavy) page behind it to re-blur on every hover/repaint, which is
+     why row hover felt laggy. An opaque scrim dims the background for free. */
+  background: rgba(6, 8, 9, 0.86);
   animation: fade-in 0.2s ease both;
 }
 @keyframes fade-in {
