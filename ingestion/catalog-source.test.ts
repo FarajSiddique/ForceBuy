@@ -18,6 +18,7 @@ test("gun keeps its plain name and pattern", () => {
   assert.equal(out.length, 1);
   assert.equal(out[0].name, "AK-47 | Redline");
   assert.equal(out[0].pattern, "Redline");
+  assert.deepEqual(out[0].wears, ["Field-Tested"]);
 });
 
 test("painted knife gets a ★ prefix", () => {
