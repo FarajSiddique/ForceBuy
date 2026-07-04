@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CategoryGroup } from "../lib/useSkins.ts";
 import { usd } from "../lib/format.ts";
 
@@ -17,35 +18,77 @@ export function ArmPhase({
   minLoadout,
   onToggle,
 }: Props) {
+  // Which category sections are expanded. All collapsed on first render.
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const anyOpen = expanded.size > 0;
+
+  function toggleCategory(name: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setExpanded(
+      anyOpen ? new Set() : new Set(categories.map((c) => c.category)),
+    );
+  }
+
   return (
     <section className="phase">
       <div className="phase-head">
         <span className="phase-num">02</span>
         <h2 className="phase-title">Arm your weapons</h2>
+        <button type="button" className="cat-all" onClick={toggleAll}>
+          {anyOpen ? "Collapse all" : "Expand all"}
+        </button>
         <span className="phase-hint">one skin slot per weapon</span>
       </div>
 
-      {categories.map((cat) => (
-        <div className="cat" key={cat.category}>
-          <div className="cat-label">
-            <span className="eyebrow">{cat.category}</span>
+      {categories.map((cat) => {
+        const isOpen = expanded.has(cat.category);
+        const armedInCat = cat.weapons.filter((g) =>
+          armed.has(g.weapon),
+        ).length;
+        return (
+          <div className="cat" key={cat.category}>
+            <button
+              type="button"
+              className="cat-label"
+              data-open={isOpen}
+              aria-expanded={isOpen}
+              onClick={() => toggleCategory(cat.category)}
+            >
+              <span className="cat-chevron" aria-hidden="true">
+                ▸
+              </span>
+              <span className="eyebrow">{cat.category}</span>
+              {armedInCat > 0 ? (
+                <span className="cat-count">{armedInCat} armed</span>
+              ) : null}
+            </button>
+            {isOpen ? (
+              <div className="weapon-grid">
+                {cat.weapons.map((g) => (
+                  <button
+                    key={g.weapon}
+                    type="button"
+                    className="weapon-toggle"
+                    data-armed={armed.has(g.weapon)}
+                    onClick={() => onToggle(g.weapon)}
+                  >
+                    <span className="wname">{g.weapon}</span>
+                    <span className="wfloor">from {usd(g.floor)}</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
-          <div className="weapon-grid">
-            {cat.weapons.map((g) => (
-              <button
-                key={g.weapon}
-                type="button"
-                className="weapon-toggle"
-                data-armed={armed.has(g.weapon)}
-                onClick={() => onToggle(g.weapon)}
-              >
-                <span className="wname">{g.weapon}</span>
-                <span className="wfloor">from {usd(g.floor)}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       {armedCount > 0 ? (
         <div className="arm-summary">

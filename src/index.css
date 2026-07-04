@@ -359,15 +359,59 @@ button {
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 0.7rem;
+  width: 100%;
+  padding: 0.15rem 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  font: inherit;
 }
 .cat-label .eyebrow {
   color: var(--muted);
+  transition: color 0.15s;
+}
+.cat-label:hover .eyebrow {
+  color: var(--ink);
 }
 .cat-label::after {
   content: "";
   flex: 1;
   height: 1px;
   background: var(--line);
+}
+.cat-chevron {
+  color: var(--dim);
+  font-size: 0.7rem;
+  transition: transform 0.15s;
+}
+.cat-label[data-open="true"] .cat-chevron {
+  transform: rotate(90deg);
+}
+.cat-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--orange);
+  white-space: nowrap;
+}
+.cat-all {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  padding: 0.3rem 0.6rem;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.cat-all:hover {
+  color: var(--ink);
+  border-color: var(--orange);
 }
 
 .weapon-grid {
