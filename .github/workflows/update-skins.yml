@@ -1,0 +1,56 @@
+name: Update skin prices
+
+# Regenerates public/data/skins.json (ByMykel catalog + Skinport prices) on a
+# schedule and commits it to main, which triggers a Vercel production redeploy.
+on:
+  schedule:
+    # 12:00 UTC every day. GitHub cron is UTC-only and can lag a few minutes
+    # under load; scheduled runs only fire from the default branch's workflow.
+    - cron: "0 12 * * *"
+  # Lets you run it on demand from the Actions tab ("Run workflow").
+  workflow_dispatch: {}
+
+# Never let two refresh runs race each other onto main.
+concurrency:
+  group: update-skins
+  cancel-in-progress: false
+
+# The default GITHUB_TOKEN needs write access to push the refreshed data.
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Falls back to the built-in token. If the protect-main ruleset blocks
+          # the github-actions bot, add a fine-grained PAT as the secret
+          # SKINS_BUILD_TOKEN and it will be used instead (see repo setup notes).
+          token: ${{ secrets.SKINS_BUILD_TOKEN || github.token }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild skins.json
+        run: npm run build:data
+
+      - name: Commit & push if changed
+        run: |
+          if git diff --quiet -- public/data/skins.json; then
+            echo "skins.json unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/skins.json
+          git commit -m "chore(data): refresh skins.json prices ($(date -u +%Y-%m-%d))"
+          git push
