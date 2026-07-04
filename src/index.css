@@ -395,6 +395,24 @@ button {
   color: var(--orange);
   white-space: nowrap;
 }
+.cat-all {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  padding: 0.3rem 0.6rem;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.cat-all:hover {
+  color: var(--ink);
+  border-color: var(--orange);
+}
 
 .weapon-grid {
   display: grid;

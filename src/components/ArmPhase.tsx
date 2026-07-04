@@ -20,6 +20,7 @@ export function ArmPhase({
 }: Props) {
   // Which category sections are expanded. All collapsed on first render.
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const anyOpen = expanded.size > 0;
 
   function toggleCategory(name: string) {
     setExpanded((prev) => {
@@ -30,11 +31,20 @@ export function ArmPhase({
     });
   }
 
+  function toggleAll() {
+    setExpanded(
+      anyOpen ? new Set() : new Set(categories.map((c) => c.category)),
+    );
+  }
+
   return (
     <section className="phase">
       <div className="phase-head">
         <span className="phase-num">02</span>
         <h2 className="phase-title">Arm your weapons</h2>
+        <button type="button" className="cat-all" onClick={toggleAll}>
+          {anyOpen ? "Collapse all" : "Expand all"}
+        </button>
         <span className="phase-hint">one skin slot per weapon</span>
       </div>
 
