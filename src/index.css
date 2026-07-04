@@ -1295,6 +1295,32 @@ button {
   .phase-hint {
     display: none;
   }
+
+  /* Equipped slot head: on narrow screens the pick chip + Marketplace +
+     Change won't fit on one line, so they overflowed and got clipped by the
+     slot's overflow:hidden. Drop the status onto its own full-width line and
+     let its contents wrap instead. */
+  .slot[data-picked="true"] .slot-head {
+    flex-wrap: wrap;
+    row-gap: 0.7rem;
+  }
+  .slot[data-picked="true"] .slot-status {
+    margin-left: 0;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.7rem;
+  }
+  .slot-pick {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .slot-pick .pname {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
