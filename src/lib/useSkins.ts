@@ -8,7 +8,7 @@ import type { Skin, SkinsFile } from "../types/skin.ts";
 import { LoadStatus } from "../types/loadStatus.ts";
 
 /** Order categories the way a CS2 buy menu roughly reads, top to bottom. */
-const CATEGORY_ORDER = ["Pistols", "SMGs", "Rifles", "Heavy", "Equipment"];
+const CATEGORY_ORDER = ["Pistols", "SMGs", "Rifles", "Heavy", "Equipment", "Knives"];
 
 export interface WeaponGroup {
 	weapon: string;

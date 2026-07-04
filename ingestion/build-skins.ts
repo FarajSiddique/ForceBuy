@@ -59,7 +59,7 @@ function buildLadder(
 async function main() {
   console.log("Fetching catalog + prices...");
   const [catalog, prices] = await Promise.all([fetchCatalog(), fetchPrices()]);
-  console.log(`  catalog: ${catalog.length} gun skins`);
+  console.log(`  catalog: ${catalog.length} catalog skins`);
   console.log(`  prices : ${prices.size} priced market items`);
 
   const skins: Skin[] = [];
