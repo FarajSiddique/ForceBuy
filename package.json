@@ -7,6 +7,7 @@
     "dev": "vite",
     "build:data": "node ingestion/build-skins.ts",
     "build": "tsc -b && vite build",
+    "test": "node --test \"ingestion/**/*.test.ts\"",
     "lint": "oxlint",
     "preview": "vite preview"
   },
