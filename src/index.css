@@ -359,15 +359,34 @@ button {
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 0.7rem;
+  width: 100%;
+  padding: 0.15rem 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  font: inherit;
 }
 .cat-label .eyebrow {
   color: var(--muted);
+  transition: color 0.15s;
+}
+.cat-label:hover .eyebrow {
+  color: var(--ink);
 }
 .cat-label::after {
   content: "";
   flex: 1;
   height: 1px;
   background: var(--line);
+}
+.cat-chevron {
+  color: var(--dim);
+  font-size: 0.7rem;
+  transition: transform 0.15s;
+}
+.cat-label[data-open="true"] .cat-chevron {
+  transform: rotate(90deg);
 }
 
 .weapon-grid {

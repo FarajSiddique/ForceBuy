@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CategoryGroup } from "../lib/useSkins.ts";
 import { usd } from "../lib/format.ts";
 
@@ -17,6 +18,18 @@ export function ArmPhase({
   minLoadout,
   onToggle,
 }: Props) {
+  // Which category sections are expanded. All collapsed on first render.
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  function toggleCategory(name: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
+
   return (
     <section className="phase">
       <div className="phase-head">
@@ -25,27 +38,41 @@ export function ArmPhase({
         <span className="phase-hint">one skin slot per weapon</span>
       </div>
 
-      {categories.map((cat) => (
-        <div className="cat" key={cat.category}>
-          <div className="cat-label">
-            <span className="eyebrow">{cat.category}</span>
+      {categories.map((cat) => {
+        const isOpen = expanded.has(cat.category);
+        return (
+          <div className="cat" key={cat.category}>
+            <button
+              type="button"
+              className="cat-label"
+              data-open={isOpen}
+              aria-expanded={isOpen}
+              onClick={() => toggleCategory(cat.category)}
+            >
+              <span className="cat-chevron" aria-hidden="true">
+                ▸
+              </span>
+              <span className="eyebrow">{cat.category}</span>
+            </button>
+            {isOpen ? (
+              <div className="weapon-grid">
+                {cat.weapons.map((g) => (
+                  <button
+                    key={g.weapon}
+                    type="button"
+                    className="weapon-toggle"
+                    data-armed={armed.has(g.weapon)}
+                    onClick={() => onToggle(g.weapon)}
+                  >
+                    <span className="wname">{g.weapon}</span>
+                    <span className="wfloor">from {usd(g.floor)}</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
-          <div className="weapon-grid">
-            {cat.weapons.map((g) => (
-              <button
-                key={g.weapon}
-                type="button"
-                className="weapon-toggle"
-                data-armed={armed.has(g.weapon)}
-                onClick={() => onToggle(g.weapon)}
-              >
-                <span className="wname">{g.weapon}</span>
-                <span className="wfloor">from {usd(g.floor)}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       {armedCount > 0 ? (
         <div className="arm-summary">
