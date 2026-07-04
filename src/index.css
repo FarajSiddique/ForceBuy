@@ -388,6 +388,13 @@ button {
 .cat-label[data-open="true"] .cat-chevron {
   transform: rotate(90deg);
 }
+.cat-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--orange);
+  white-space: nowrap;
+}
 
 .weapon-grid {
   display: grid;

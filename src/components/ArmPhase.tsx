@@ -40,6 +40,9 @@ export function ArmPhase({
 
       {categories.map((cat) => {
         const isOpen = expanded.has(cat.category);
+        const armedInCat = cat.weapons.filter((g) =>
+          armed.has(g.weapon),
+        ).length;
         return (
           <div className="cat" key={cat.category}>
             <button
@@ -53,6 +56,9 @@ export function ArmPhase({
                 ▸
               </span>
               <span className="eyebrow">{cat.category}</span>
+              {armedInCat > 0 ? (
+                <span className="cat-count">{armedInCat} armed</span>
+              ) : null}
             </button>
             {isOpen ? (
               <div className="weapon-grid">
